@@ -48,7 +48,7 @@ A multiset over a state type with `F2` coefficients. Because coefficients are in
 A fractional container `BooleFraction state` holding:
 - `numeratorBitMset`: The active circuit multiset weights.
 - `denominatorUnit`: The unit scale multiset.
-- `isTrivial`: A **dependent type proof** verifying at compile-time that the denominator is exactly the unit constant $1$. This anchors the denominator, which generalizes to total mass in Row 3 (probability) and grid density in Rows 7–9 (chromogeometry).
+- `isTrivial`: A **dependent type proof** verifying at compile-time that the denominator is exactly the unit constant $1$. This anchors the denominator, which generalizes to the total universe sum in Row 3 (probability) and grid density in Rows 7–9 (chromogeometry).
 
 ---
 
