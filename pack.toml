@@ -1,0 +1,9 @@
+[custom.all.idris2-Boole]
+type = "local"
+path = "."
+ipkg = "idris2-Boole.ipkg"
+
+[custom.all.idris2-Multiset]
+type = "local"
+path = "../idris2-Multiset"
+ipkg = "idris2-Multiset.ipkg"
