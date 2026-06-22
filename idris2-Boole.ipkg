@@ -11,7 +11,7 @@ modules = Boole.Bit, Boole.Byte, Boole.Connective
         , Boole.Circuit, Boole.Syllogism
         , Boole.Interfaces
         , Boole.Bridge
-        , Boole.Hehner
+        , Boole.FunctionalProbability
         , Boole.Hailperin
         , Boole.BF2
         , Boole.BitGate
