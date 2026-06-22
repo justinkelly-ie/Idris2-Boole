@@ -20,7 +20,7 @@ import Boole.BitGate
 -----------------------------------------------------------------------
 
 ||| THE UNIT CONSTANT: The unique trivial denominator for Row 1.
-||| A single base anchor element with multiplicty O (=1 in F2).
+||| A single base anchor element with multiplicty O (=1 in BF2).
 public export
 data TrivialBase = BaseAnchor
 
@@ -53,11 +53,11 @@ mkBooleFraction bits = OverCircuit bits theUnitConstant Refl
 
 ||| Evaluate a state from the fraction numerator.
 public export
-evalFraction : Eq state => BooleFraction state -> state -> F2
+evalFraction : Eq state => BooleFraction state -> state -> BF2
 evalFraction (OverCircuit num _ _) s = evaluateState num s
 
 ||| Lift the numerator to BoxInt weights, transitioning from Row 1 → Row 2.
-||| Maps F2 ∈ {Z,O} to BoxInt ∈ {0,1} for the Boole-Möbius polynomial layer.
+||| Maps BF2 ∈ {Z,O} to BoxInt ∈ {0,1} for the Boole-Möbius polynomial layer.
 public export
 liftToRow2 : BooleFraction state -> Multiset BoxInt state
 liftToRow2 (OverCircuit num _ _) = liftBitGateToBoxInt num
