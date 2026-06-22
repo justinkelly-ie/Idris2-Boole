@@ -42,7 +42,7 @@ evaluateState (AddM k v rest) s =
     then addF2 v (evaluateState rest s)
     else evaluateState rest s
 
-||| Lift the full multiset into BoxInt weights for transition to Row 2 (Lifted Polynombers).
+||| Lift the full multiset into BoxInt weights for transition to Row 2 (Lifted Polynumbers).
 ||| Uses algebraic BoxInt rather than raw machine integers.
 public export
 liftBitGateToBoxInt : BitGateMset state -> Multiset BoxInt state

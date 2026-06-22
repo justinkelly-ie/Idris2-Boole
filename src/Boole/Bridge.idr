@@ -14,7 +14,7 @@ import Boole.MobiusTransform
 -- BOOLE → BOXINT BRIDGE
 --
 -- Row 1 (Digital Repetition) operates over BVal ∈ {0,1} (𝔽₂).
--- Row 2 (Lifted Polynombers) operates over BoxInt ∈ ℤ.
+-- Row 2 (Lifted Polynumbers) operates over BoxInt ∈ ℤ.
 --
 -- This module provides the embedding and the integer-valued
 -- Boole-Möbius transform that connects the two layers.
