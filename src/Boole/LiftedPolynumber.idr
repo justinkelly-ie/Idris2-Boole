@@ -167,9 +167,30 @@ truthTableToLiftedPoly : Eq v => List v -> List BoxInt -> LiftedPolynumber v
 truthTableToLiftedPoly vars tt =
   coefficientsToPolynumber vars (mobiusInverseZ tt)
 
-||| Converts a LiftedPolynumber into a dense truth table using mobiusTransformZ.
 public export
 liftedPolyToTruthTableM : Eq v => List v -> LiftedPolynumber v -> List BoxInt
 liftedPolyToTruthTableM vars poly =
   let coeffs = polynumberToCoefficients vars poly
   in mobiusTransformZ coeffs
+
+-----------------------------------------------------------------------
+-- STANDARD ALGEBRAIC INTERFACES (Num, Neg, Cast)
+-----------------------------------------------------------------------
+
+public export
+(Eq v) => Num (LiftedPolynumber v) where
+  (+) = addLiftedPoly
+  (*) = mulLiftedPoly
+  fromInteger n =
+    if n == 0
+    then MKPolynumber ZeroM
+    else MKPolynumber (AddM (fromList []) (intToBoxInt (fromInteger n)) ZeroM)
+
+public export
+(Eq v) => Neg (LiftedPolynumber v) where
+  negate (MKPolynumber poly) = MKPolynumber (negateMultiset poly)
+  (-) x y = x + negate y
+
+public export
+(Eq v) => Cast v (LiftedPolynumber v) where
+  cast x = MKPolynumber (AddM (fromList [(x, 1)]) 1 ZeroM)

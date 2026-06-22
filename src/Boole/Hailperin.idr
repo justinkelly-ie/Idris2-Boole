@@ -129,3 +129,45 @@ extractBoundsFromMobius coeffs =
       in if val > 0 then MkBounds zeroMSF (fromBoxInt c)
          else if val < 0 then MkBounds (fromBoxInt (negate c)) oneMSF
          else trivialBounds
+
+-----------------------------------------------------------------------
+-- 6. GEORGE BOOLE'S LAST CHALLENGE PROBLEM
+-----------------------------------------------------------------------
+
+||| Solves George Boole's Last Challenge Problem by bounding the union of three events.
+||| Given P(A), P(B), P(C), and P(A ∧ B ∧ C), returns the bounds [lo, hi] on P(A ∨ B ∨ C).
+public export
+booleLastChallenge : (pA : MSetFraction) ->
+                     (pB : MSetFraction) ->
+                     (pC : MSetFraction) ->
+                     (pABC : MSetFraction) ->
+                     ProbBounds
+booleLastChallenge pA pB pC pABC =
+  let -- Lower bound terms: pA, pB, pC, (pA + pB + pC - pABC) / 2
+      sumABC = addMSF pA (addMSF pB pC)
+      sumMinusJoint = subMSF sumABC pABC
+      halfSum = MkMSF sumMinusJoint.num (sumMinusJoint.den + sumMinusJoint.den)
+
+      -- Find max of lower bounds
+      lo = maxOf [pA, pB, pC, halfSum]
+
+      -- Upper bound terms: 1, pA + pB + pC - 2 * pABC
+      twoJoint = addMSF pABC pABC
+      upperLimit = subMSF sumABC twoJoint
+
+      -- Find min of upper bounds
+      hi = minOf [oneMSF, upperLimit]
+  in MkBounds lo hi
+  where
+    gtProbMSF : MSetFraction -> MSetFraction -> Bool
+    gtProbMSF (MkMSF a b) (MkMSF c d) =
+      (a * fromInteger (natToInteger d)) > (c * fromInteger (natToInteger b))
+
+    maxOf : List MSetFraction -> MSetFraction
+    maxOf [] = zeroMSF -- fallback
+    maxOf (x :: xs) = foldl (\m, y => if gtProbMSF y m then y else m) x xs
+
+    minOf : List MSetFraction -> MSetFraction
+    minOf [] = oneMSF  -- fallback
+    minOf (x :: xs) = foldl (\m, y => if gtProbMSF m y then y else m) x xs
+
