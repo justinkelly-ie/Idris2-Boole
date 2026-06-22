@@ -44,7 +44,62 @@ totalAbsMass ZeroM = 0
 totalAbsMass (AddM _ c rest) = abs c + totalAbsMass rest
 
 -----------------------------------------------------------------------
--- 2. HEHNER NORMALISATION
+-- 2. HEHNER FRACTION DEFINITION (Row 3 Complete Type)
+-----------------------------------------------------------------------
+
+||| Row 3 complete fraction type.
+||| Pairs a quantified multiset (numerator box) with its total universe sum (denominator box).
+||| The dependent type constraint `isNormalized` proves the denominator is exactly the total mass.
+public export
+record HehnerFraction (v : Type) where
+  constructor OverHehnerSpace
+  numeratorMset  : Multiset BoxInt v
+  denominatorSum : BoxInt
+  isNormalized   : denominatorSum = totalMass numeratorMset
+
+||| Smart constructor for HehnerFraction.
+||| Automatically constructs the normalization proof.
+public export
+mkHehnerFraction : (m : Multiset BoxInt v) -> HehnerFraction v
+mkHehnerFraction m = OverHehnerSpace m (totalMass m) Refl
+
+||| Extract the probability of a specific state in the normalised space.
+||| Returns the probability as an MSetFraction.
+||| If the total mass is zero (degenerate space), returns 0/1.
+public export
+stateProbability : Eq v => HehnerFraction v -> v -> MSetFraction
+stateProbability (OverHehnerSpace m den prf) s =
+  let (MkUr denVal) = boxToInt den
+      absDen = Math.Interfaces.integerToNat (abs denVal)
+  in if absDen == 0
+     then zeroMSF
+     else
+       let wt = lookupWeight s m
+       in MkMSF wt absDen
+  where
+    lookupWeight : v -> Multiset BoxInt v -> BoxInt
+    lookupWeight _ ZeroM = 0
+    lookupWeight x (AddM y w rest) =
+      if x == y then w + lookupWeight x rest
+      else lookupWeight x rest
+
+||| Normalize a HehnerFraction into a list of states and their corresponding probabilities.
+public export
+normalizeFraction : HehnerFraction v -> List (v, MSetFraction)
+normalizeFraction (OverHehnerSpace m den prf) =
+  let (MkUr denVal) = boxToInt den
+      absDen = Math.Interfaces.integerToNat (abs denVal)
+  in if absDen == 0
+     then []
+     else go m absDen
+  where
+    go : Multiset BoxInt v -> Nat -> List (v, MSetFraction)
+    go ZeroM _ = []
+    go (AddM elem wt rest) d =
+      (elem, MkMSF wt d) :: go rest d
+
+-----------------------------------------------------------------------
+-- 3. HEHNER NORMALISATION (Legacy API)
 -----------------------------------------------------------------------
 
 ||| Normalise a multiset into a list of MSetFractions.
