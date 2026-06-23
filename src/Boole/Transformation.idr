@@ -29,6 +29,12 @@ public export
 TransformationMSet : (state : Type) -> Type
 TransformationMSet state = Multiset BF2 (SingRelation (LogicState state))
 
+||| The Routing Template MSet (Circuit Wiring Scaffolding):
+||| A multiset of logical relations mapping input variables to gate inputs.
+public export
+RoutingTemplateMSet : (state : Type) -> Type
+RoutingTemplateMSet state = Multiset BF2 (SingRelation (LogicState state))
+
 ||| Transitive relation multiplication (Composition).
 ||| Maps [a -> b] * [c -> d] to [a -> d] iff b == c.
 public export
