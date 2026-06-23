@@ -87,3 +87,23 @@ xorGate : Eq state => LogicState state -> LogicState state -> LogicState state -
 xorGate in1 in2 output =
   wire in1 output + wire in2 output
 
+||| Apply the Transformation MSet to an input state to compute the output state.
+||| Uses the new Sing-based modulo-2 parity addition to collapse duplicate targets.
+public export
+applyTransformation : Eq state => Sing BF2 state -> TransformationMSet state -> Sing BF2 state
+applyTransformation _ ZeroM = ZeroS
+applyTransformation inputState (AddM (MkSingRelation src tgt) w rest) =
+  let current = case tgt of
+                  ConstState _ => ZeroS
+                  VarState v   =>
+                    case src of
+                      ConstState _ =>
+                        if w == Z then ZeroS else OneS v w
+                      VarState u   =>
+                        let c = evaluateSingState inputState u in
+                        let val = mulBF2 c w in
+                        if val == Z then ZeroS else OneS v val
+      accumulatedRest = applyTransformation inputState rest
+  in current + accumulatedRest
+
+

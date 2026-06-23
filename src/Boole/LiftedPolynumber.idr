@@ -3,6 +3,8 @@ module Boole.LiftedPolynumber
 import Data.List
 import Data.Nat
 import Math.Multiset
+import Math.Sing
+import Math.Sing1
 import Math.BoxInt
 import Boole.BF2
 import Boole.Bit
@@ -91,17 +93,35 @@ mulLiftedPoly (MKPolynumber p1) (MKPolynumber p2) =
 
 ||| The canonical unit denominator multiset for Row 2.
 public export
-theUnitConstantZ : Multiset BoxInt TrivialBase
-theUnitConstantZ = AddM BaseAnchor 1 ZeroM
+theSingUnitConstantZ : Sing1 BoxInt TrivialBase
+theSingUnitConstantZ = MkSing1 BaseAnchor 1
 
 ||| Row 2: The Lifted Polynomial Fraction structure.
-||| Encodes an integer-weighted polynumber numerator over a unit constant denominator.
+||| Encodes an integer-weighted singleton numerator over a strictly positive unit denominator.
 public export
-record LiftedBooleFraction (v : Type) where
+record LiftedBooleFraction (state : Type) where
   constructor OverLiftedCircuit
-  numeratorPolynumber : LiftedPolynumber v
-  denominatorUnit     : Multiset BoxInt TrivialBase
-  isTrivial           : denominatorUnit = theUnitConstantZ
+  numeratorPolynumber : Sing BoxInt state
+  denominatorUnit     : Sing1 BoxInt TrivialBase
+
+public export
+mkLiftedBooleFraction : Sing BoxInt state -> LiftedBooleFraction state
+mkLiftedBooleFraction bits = OverLiftedCircuit bits theSingUnitConstantZ
+
+||| Lift the singleton fraction to the lifted fraction (Row 2 complete type).
+public export
+liftSingFractionToRow2 : SingBooleFraction state -> LiftedBooleFraction state
+liftSingFractionToRow2 frac = mkLiftedBooleFraction (liftSingToRow2 frac)
+
+||| Evaluate a state from the lifted fraction.
+public export
+evalLiftedFraction : Eq state => LiftedBooleFraction state -> state -> BoxInt
+evalLiftedFraction (OverLiftedCircuit num _) s =
+  case num of
+    ZeroS => 0
+    OneS k v => if k == s then v else 0
+
+
 
 -----------------------------------------------------------------------
 -- BOOLE-MÖBIUS SHIFT TRANSFORMS
