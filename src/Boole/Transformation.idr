@@ -62,17 +62,28 @@ Eq state => Num (TransformationMSet state) where
   fromInteger 1 = AddM (MkSingRelation (ConstState BaseAnchor) (ConstState BaseAnchor)) O ZeroM
   fromInteger _ = ZeroM
 
--- =======================================================================
--- ALGEBRA OF BOOLE OPERATIONS (IN COMMENTS ONLY)
---
--- bufferGate input output = 
---   wire input output
---
--- NOT gate (bias + wire):
---   bias = MkSingRelation (ConstState BaseAnchor) (VarState output)
---   wire = MkSingRelation (VarState input) (VarState output)
---   notGate input output = bias + wire
---
--- XOR gate (wire1 + wire2):
---   xorGate in1 in2 output = wire in1 output + wire in2 output
--- =======================================================================
+public export
+wire : LogicState state -> LogicState state -> TransformationMSet state
+wire input output = AddM (MkSingRelation input output) O ZeroM
+
+public export
+bufferGate : Eq state => LogicState state -> LogicState state -> TransformationMSet state
+bufferGate input output = wire input output
+
+||| NOT gate (bias + wire):
+||| bias = MkSingRelation (ConstState BaseAnchor) (VarState output)
+||| wire = MkSingRelation (VarState input) (VarState output)
+public export
+notGate : Eq state => LogicState state -> LogicState state -> TransformationMSet state
+notGate input output =
+  let bias = wire (ConstState BaseAnchor) output
+      w    = wire input output
+  in bias + w
+
+||| XOR gate (wire1 + wire2):
+||| xorGate in1 in2 output = wire in1 output + wire in2 output
+public export
+xorGate : Eq state => LogicState state -> LogicState state -> LogicState state -> TransformationMSet state
+xorGate in1 in2 output =
+  wire in1 output + wire in2 output
+
