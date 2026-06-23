@@ -18,3 +18,4 @@ modules = Boole.Bit, Boole.Byte, Boole.Connective
         , Boole.BooleFraction
         , Boole.LiftedPolynumber
         , Boole.SingFraction
+        , Boole.Transformation
