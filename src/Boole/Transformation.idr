@@ -2,6 +2,7 @@ module Boole.Transformation
 
 import Math.Multiset
 import Math.Sing
+import Math.Vexel
 import Boole.BF2
 import Boole.SingFraction
 
@@ -105,5 +106,37 @@ applyTransformation inputState (AddM (MkSingRelation src tgt) w rest) =
                         if val == Z then ZeroS else OneS v val
       accumulatedRest = applyTransformation inputState rest
   in current + accumulatedRest
+
+-----------------------------------------------------------------------
+-- VEXEL IMPLEMENTATION FOR BOOLE LOGIC (ROW 1 & 2)
+-----------------------------------------------------------------------
+
+||| A Vexel representing logical state inputs/outputs (Row 1).
+||| Defined as a list of singleton bit-gates.
+public export
+0 LogicVexel : (state : Type) -> Type
+LogicVexel state = Vexel BF2 state
+
+||| Wrap a single bit-gate singleton multiset into a LogicVexel.
+public export
+toLogicVexel : SingBitGateMset state -> LogicVexel state
+toLogicVexel ZeroS = []
+toLogicVexel (OneS s w) = [OneS s w]
+
+||| Add two logic vexels together using the modulo-2 collapse rule.
+public export
+addLogicVexels : Eq state => LogicVexel state -> LogicVexel state -> LogicVexel state
+addLogicVexels = addVexels
+
+||| Apply a Transformation MSet (Maxel) to a LogicVexel input.
+||| Since LogicVexel is a list of singletons, we map applyTransformation over the elements
+||| and accumulate the result using addLogicVexels.
+public export
+applyTransformationVexel : Eq state => LogicVexel state -> TransformationMSet state -> LogicVexel state
+applyTransformationVexel [] _ = []
+applyTransformationVexel (x :: xs) trans =
+  let res = applyTransformation x trans
+      tailRes = applyTransformationVexel xs trans
+  in addLogicVexels (toLogicVexel res) tailRes
 
 

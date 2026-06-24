@@ -79,3 +79,4 @@ liftSingBitGateToBoxInt (OneS k v) = OneS k (bf2ToBoxInt v)
 public export
 liftSingToRow2 : SingBooleFraction state -> Sing BoxInt state
 liftSingToRow2 (OverSingCircuit num _) = liftSingBitGateToBoxInt num
+
