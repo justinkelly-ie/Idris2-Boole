@@ -1,43 +1,78 @@
 module Boole.BF2
 
 import Math.BoxInt
+import Math.Sing
 
 %default total
 
 -----------------------------------------------------------------------
 -- MODULO-2 LOGIC FIELD
 --
--- The two elements of BF_2 ∈ {0,1} as a strict modulo-2 type.
--- This is the coefficient field for the Boolean Ring (Row 1).
--- Addition is XOR (1 + 1 = 0); multiplication is AND (1 * 1 = 1).
+-- Redefined using Wildberger's recursive mset/singleton model.
+-- The two elements of BF_2 ∈ {0,1} are represented as:
+--   Z = Sing 0 = [] = ZeroS
+--   O = Sing 1 = [[]] = OneS () 1
 -----------------------------------------------------------------------
 
 public export
-data BF2 = Z | O
+record BF2 where
+  constructor MkBF2
+  content : Sing Integer ()
+
+public export
+Z : BF2
+Z = MkBF2 ZeroS
+
+public export
+O : BF2
+O = MkBF2 (OneS () 1)
+
+public export
+normalize : BF2 -> BF2
+normalize (MkBF2 ZeroS) = Z
+normalize (MkBF2 (OneS () c)) =
+  if mod c 2 == 0
+    then Z
+    else O
 
 public export
 Eq BF2 where
-  Z == Z = True
-  O == O = True
-  _ == _ = False
+  (MkBF2 s1) == (MkBF2 s2) =
+    let count1 = case s1 of
+                   ZeroS => 0
+                   OneS () c => mod c 2
+        count2 = case s2 of
+                   ZeroS => 0
+                   OneS () c => mod c 2
+    in (count1 == 0 && count2 == 0) || (count1 == 1 && count2 == 1)
 
 public export
 Show BF2 where
-  show Z = "0"
-  show O = "1"
+  show x = if x == Z then "0" else "1"
 
 ||| BOOLEAN RING EVALUATION: XOR Addition (1 + 1 = 0)
 public export
 addBF2 : BF2 -> BF2 -> BF2
-addBF2 Z x = x
-addBF2 x Z = x
-addBF2 O O = Z
+addBF2 x y =
+  let c1 = case content x of
+             ZeroS => 0
+             OneS () c => c
+      c2 = case content y of
+             ZeroS => 0
+             OneS () c => c
+  in normalize (MkBF2 (OneS () (c1 + c2)))
 
 ||| AND Multiplication (1 * 1 = 1)
 public export
 mulBF2 : BF2 -> BF2 -> BF2
-mulBF2 O O = O
-mulBF2 _ _ = Z
+mulBF2 x y =
+  let c1 = case content x of
+             ZeroS => 0
+             OneS () c => c
+      c2 = case content y of
+             ZeroS => 0
+             OneS () c => c
+  in normalize (MkBF2 (OneS () (c1 * c2)))
 
 public export
 Num BF2 where
@@ -45,17 +80,15 @@ Num BF2 where
   (*) = mulBF2
   fromInteger 0 = Z
   fromInteger 1 = O
-  fromInteger _ = Z
+  fromInteger n = if mod n 2 == 0 then Z else O
 
 ||| Lift a BF2 element to a natural number (0 or 1)
 public export
 bf2ToNat : BF2 -> Nat
-bf2ToNat Z = 0
-bf2ToNat O = 1
+bf2ToNat x = if x == Z then 0 else 1
 
 ||| Lift a BF2 element to a BoxInt weight for Row 2 transition.
 ||| Maps the bi-field {Z,O} into algebraic integer space without raw casting.
 public export
 bf2ToBoxInt : BF2 -> BoxInt
-bf2ToBoxInt Z = intToBoxInt 0
-bf2ToBoxInt O = intToBoxInt 1
+bf2ToBoxInt x = if x == Z then intToBoxInt 0 else intToBoxInt 1
